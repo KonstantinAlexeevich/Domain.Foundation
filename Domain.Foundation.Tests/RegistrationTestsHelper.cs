@@ -6,7 +6,7 @@ using Xunit;
 
 namespace Domain.Foundation.Tests
 {
-    public class RegistrationTests
+    public class RegistrationTestsHelper
     {
         /// <summary>
         /// Test that register
@@ -43,6 +43,32 @@ namespace Domain.Foundation.Tests
             
             Assert.Equal(apiHandler, apiHandlerByIHandlerMarker);
             Assert.Equal(apiHandler, apiHandlerByMarker);
+        }
+        
+        public ApiHandlersResult<TRequest, TResponse, TMarkerInterface> GetApiHandlers<TRequest, TResponse, TMarkerInterface>(ServiceProvider serviceProvider)
+            where TMarkerInterface : IHandler<TRequest, TResponse>
+        {
+            var apiHandlerByIHandlerMarker = serviceProvider.GetRequiredService<IApiHandler<TRequest, TResponse, IHandler<TRequest, TResponse>>>();
+            var apiHandlerByMarker = serviceProvider.GetRequiredService<IApiHandler<TRequest, TResponse, TMarkerInterface>>();
+            var apiHandler = serviceProvider.GetRequiredService<IApiHandler<TRequest, TResponse>>();
+
+            return new ApiHandlersResult<TRequest, TResponse, TMarkerInterface>
+            {
+                ApiHandlerByIHandlerMarker = apiHandlerByIHandlerMarker,
+                ApiHandlerByMarker = apiHandlerByMarker,
+                ApiHandler = apiHandler
+            };
+        }
+        
+        public ServiceProvider GetServiceProviderWithApiHandlerDecorator()
+        {
+            var serviceCollection = new ServiceCollection();
+            serviceCollection.AddDomainFoundation(x =>
+                x.AddAssemblies(GetType().Assembly)
+                    .DecorateApiHandler(typeof(TestApiHandlerDecorator<,,>)));
+
+            var serviceProvider = serviceCollection.BuildServiceProvider();
+            return serviceProvider;
         }
     }
 }

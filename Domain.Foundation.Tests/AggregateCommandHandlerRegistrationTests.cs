@@ -7,12 +7,12 @@ namespace Domain.Foundation.Tests
 {
     public class AggregateCommandHandlerRegistrationTests
     {
-        readonly RegistrationTests _tests = new RegistrationTests();
+        readonly RegistrationTestsHelper _testsHelper = new RegistrationTestsHelper();
         
         [Fact]
         public void Registration_WithQueryHandlerMarkerInterface_ShouldBeSuccess()
         {
-            _tests.HandlersAndApiHandlers_ShouldBeRegistered<
+            _testsHelper.HandlersAndApiHandlers_ShouldBeRegistered<
                 TestA.Request,
                 TestA.Response,
                 TestA.ITestHandler,
@@ -24,7 +24,7 @@ namespace Domain.Foundation.Tests
         [Fact]
         public void Registration_WithHandlerMarkerInterface_ShouldBeSuccess()
         {
-            _tests.HandlersAndApiHandlers_ShouldBeRegistered<
+            _testsHelper.HandlersAndApiHandlers_ShouldBeRegistered<
                 TestB.Request,
                 TestB.Response,
                 TestB.ITestHandler,
@@ -35,12 +35,64 @@ namespace Domain.Foundation.Tests
         [Fact]
         public void Registration_WithoutMarkerInterface_ShouldBeSuccess()
         {
-            _tests.HandlersAndApiHandlers_ShouldBeRegistered<
+            _testsHelper.HandlersAndApiHandlers_ShouldBeRegistered<
                 TestC.Request,
                 TestC.Response,
                 IHandler<TestC.Request, TestC.Response>,
                 IAggregateCommandHandler<TestAggregate, long, TestC.Request, TestC.Response>
             >();
+        }
+        
+                
+        [Fact]
+        public void WithQueryHandlerMarkerInterface_IsDecorated()
+        {
+            var serviceProvider = _testsHelper.GetServiceProviderWithApiHandlerDecorator();
+            
+            var apiHandlers = _testsHelper.GetApiHandlers<
+                TestA.Request,
+                TestA.Response,
+                TestA.ITestHandler
+            >(serviceProvider);
+
+            var decorated = typeof(TestApiHandlerDecorator<TestA.Request, TestA.Response, TestA.ITestHandler>);
+            Assert.Equal(decorated, apiHandlers.ApiHandler.GetType());
+            Assert.Equal(decorated, apiHandlers.ApiHandlerByMarker.GetType());
+            Assert.Equal(decorated, apiHandlers.ApiHandlerByIHandlerMarker.GetType());
+        }
+        
+        [Fact]
+        public void WithHandlerMarkerInterface_IsDecorated()
+        {
+            var serviceProvider = _testsHelper.GetServiceProviderWithApiHandlerDecorator();
+            
+            var apiHandlers = _testsHelper.GetApiHandlers<
+                TestB.Request,
+                TestB.Response,
+                TestB.ITestHandler
+            >(serviceProvider);
+
+            var decorated = typeof(TestApiHandlerDecorator<TestB.Request, TestB.Response, TestB.ITestHandler>);
+            Assert.Equal(decorated, apiHandlers.ApiHandler.GetType());
+            Assert.Equal(decorated, apiHandlers.ApiHandlerByMarker.GetType());
+            Assert.Equal(decorated, apiHandlers.ApiHandlerByIHandlerMarker.GetType());
+        }
+        
+        [Fact]
+        public void WithoutMarkerInterface_IsDecorated()
+        {
+            var serviceProvider = _testsHelper.GetServiceProviderWithApiHandlerDecorator();
+
+            var apiHandlers = _testsHelper.GetApiHandlers<
+                TestC.Request,
+                TestC.Response,
+                IHandler<TestC.Request, TestC.Response>
+            >(serviceProvider);
+
+            var decorated = typeof(TestApiHandlerDecorator<TestC.Request, TestC.Response, IHandler<TestC.Request, TestC.Response>>);
+            Assert.Equal(decorated, apiHandlers.ApiHandler.GetType());
+            Assert.Equal(decorated, apiHandlers.ApiHandlerByMarker.GetType());
+            Assert.Equal(decorated, apiHandlers.ApiHandlerByIHandlerMarker.GetType());
         }
 
         public static class TestA

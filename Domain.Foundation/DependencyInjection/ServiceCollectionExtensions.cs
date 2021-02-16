@@ -9,7 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Domain.Foundation.DependencyInjection
 {
-    public static class RegistrationExtensions
+    public static class ServiceCollectionExtensions
     {
         private static readonly Type QueryHandlerInterface = typeof(IQueryHandler<,>);
         private static readonly Type ApiQueryHandlerType = typeof(ApiQueryHandler<,,>);
@@ -43,6 +43,11 @@ namespace Domain.Foundation.DependencyInjection
 
         private static IServiceCollection AddQueryHandlers(this IServiceCollection serviceCollection, RegistrationOptions options)
         {
+            var helper = new RegistrationHelper(
+                serviceCollection,
+                QueryHandlerInterface, 
+                options.GetApiHandlerDecorators());
+            
             options
                 .GetAssemblies()
                 .GetTypes()
@@ -55,14 +60,14 @@ namespace Domain.Foundation.DependencyInjection
                     var genericArguments = genericInterface.GetGenericArguments();
                     var tRequest = genericArguments[0];
                     var tResponse = genericArguments[1];
-
+                    
                     Type GetApiHandlerType(Type markerInterface)
                     {
                         return ApiQueryHandlerType.MakeGenericType(tRequest, tResponse, markerInterface);
                     }
 
-                    var helper = new RegistrationHelper(QueryHandlerInterface, tRequest, tResponse, GetApiHandlerType, options.GetApiHandlerDecorators());
-                    helper.Register(serviceCollection, handlerType);
+                    helper.WithGetApiHandler(GetApiHandlerType)
+                        .Register(handlerType, tRequest, tResponse);
                 });
 
             return serviceCollection;
@@ -70,6 +75,12 @@ namespace Domain.Foundation.DependencyInjection
 
         private static IServiceCollection AddCommandHandlers(this IServiceCollection serviceCollection, RegistrationOptions options)
         {
+            
+            var helper = new RegistrationHelper(
+                serviceCollection,
+                CommandHandlerInterface, 
+                options.GetApiHandlerDecorators());
+            
             options
                 .GetAssemblies()
                 .GetTypes()
@@ -88,8 +99,8 @@ namespace Domain.Foundation.DependencyInjection
                         return ApiCommandHandlerType.MakeGenericType(tRequest, tResponse, markerInterface);
                     }
 
-                    var helper = new RegistrationHelper(CommandHandlerInterface, tRequest, tResponse, GetApiHandlerType, options.GetApiHandlerDecorators());
-                    helper.Register(serviceCollection, handlerType);
+                    helper.WithGetApiHandler(GetApiHandlerType)
+                        .Register(handlerType, tRequest, tResponse);
                 });
 
             return serviceCollection;
@@ -97,6 +108,11 @@ namespace Domain.Foundation.DependencyInjection
 
         private static IServiceCollection AddAggregateCommandHandlers(this IServiceCollection serviceCollection, RegistrationOptions options)
         {
+            var helper = new RegistrationHelper(
+                serviceCollection,
+                AggregateCommandHandlerInterface, 
+                options.GetApiHandlerDecorators());
+            
             options
                 .GetAssemblies()
                 .GetTypes()
@@ -114,59 +130,15 @@ namespace Domain.Foundation.DependencyInjection
 
                     Type GetApiHandlerType(Type markerInterface)
                     {
-                        return ApiAggregateCommandHandlerType.MakeGenericType(tAggregate, tIdentity, tRequest, tResponse, markerInterface);
+                        return ApiAggregateCommandHandlerType.MakeGenericType(
+                            tAggregate, tIdentity, tRequest, tResponse, markerInterface);
                     }
 
-                    var helper = new RegistrationHelper(AggregateCommandHandlerInterface, tRequest, tResponse, GetApiHandlerType, options.GetApiHandlerDecorators());
-                    helper.Register(serviceCollection, handlerType);
+                    helper.WithGetApiHandler(GetApiHandlerType)
+                        .Register(handlerType, tRequest, tResponse);
                 });
 
             return serviceCollection;
-        }
-
-        internal static IEnumerable<Type> GetMarkerInterfaces(this TypeInfo x, Type handlerType)
-        {
-            return x.ImplementedInterfaces
-                .Where(y => !y.IsGenericType &&
-                    y.GetTypeInfo().ImplementedInterfaces
-                        .Any(z => z.IsGenericType && z.GetGenericTypeDefinition() == handlerType));
-        }
-
-        internal static Type GetGenericType(this Type x, Type handlerType)
-        {
-            List<Type> types = new List<Type>();
-            types.AddRange(x.GetTypeInfo().ImplementedInterfaces);
-            types.Add(x);
-            
-            return types.Single(y => y.IsGenericType && y.GetGenericTypeDefinition() == handlerType);
-        }
-
-        static IEnumerable<TypeInfo> WhereImplementsGenericInterface(this IEnumerable<TypeInfo> types,
-            Type type)
-        {
-            return types.Where(x => x.IsClass &&
-                                    !x.IsAbstract &&
-                                    !x.IsGenericType &&
-                                    x.AsType().ImplementsGenericInterface(type));
-        }
-
-        static IEnumerable<TypeInfo> GetTypes(this IEnumerable<Assembly> assemblies)
-        {
-            return assemblies
-                .Where(assembly => !assembly.IsDynamic)
-                .Distinct()
-                .SelectMany(assembly => assembly.DefinedTypes);
-        }
-
-        internal static bool ImplementsGenericInterface(this Type type, Type interfaceType)
-        {
-            return type.IsGenericType(interfaceType) || type.GetTypeInfo().ImplementedInterfaces
-                .Any(@interface => @interface.IsGenericType(interfaceType));
-        }
-
-        internal static bool IsGenericType(this Type type, Type genericType)
-        {
-            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == genericType;
         }
     }
 }
