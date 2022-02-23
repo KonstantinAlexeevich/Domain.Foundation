@@ -1,15 +1,16 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.CQRS;
 
 namespace Domain.Foundation.Api
 {
-    public interface IApiHandler<in TRequest, TResponse, out THandler> : IApiHandler<TRequest, TResponse>
+    public interface IApiHandler<TRequest, TResponse, out THandler> : IApiHandler<TRequest, TResponse>
         where THandler : IHandler<TRequest, TResponse>
     {
     }
 
-    public interface IApiHandler<in TRequest, TResponse>
+    public interface IApiHandler<TRequest, TResponse>
     {
-        Task<TResponse> Handle(TRequest request);
+        Task<ApiResult<TRequest, TResponse>> Handle(TRequest request, CancellationToken cancellationToken);
     }
 }

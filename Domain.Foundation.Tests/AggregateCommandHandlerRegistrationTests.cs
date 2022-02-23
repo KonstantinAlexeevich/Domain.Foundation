@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.CQRS;
 using Domain.Foundation.Tactical;
 using Xunit;
@@ -104,7 +105,7 @@ namespace Domain.Foundation.Tests
 
             public class Request : ICommand<long>
             {
-                public long AggregateId { get; set; }
+                public long AggregateId { get; init; }
             }
         
             public class Response
@@ -113,7 +114,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : ITestHandler
             {
-                public Task<Response> ExecuteAsync(TestAggregate aggregate, Request command)
+                public Task<Response> ExecuteAsync(TestAggregate aggregate, Request command, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }
@@ -128,7 +129,7 @@ namespace Domain.Foundation.Tests
 
             public class Request: ICommand<long>
             {
-                public long AggregateId { get; set; }
+                public long AggregateId { get; init; }
             }
         
             public class Response
@@ -137,7 +138,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : ITestHandler, IAggregateCommandHandler<TestAggregate, long, Request, Response>
             {
-                public Task<Response> ExecuteAsync(TestAggregate aggregate, Request command)
+                public Task<Response> ExecuteAsync(TestAggregate aggregate, Request command, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }
@@ -147,7 +148,7 @@ namespace Domain.Foundation.Tests
         {
             public class Request: ICommand<long>
             {
-                public long AggregateId { get; set; }
+                public long AggregateId { get; init; }
             }
         
             public class Response
@@ -156,7 +157,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : IAggregateCommandHandler<TestAggregate, long, Request, Response>
             {
-                public Task<Response> ExecuteAsync(TestAggregate aggregate, Request command)
+                public Task<Response> ExecuteAsync(TestAggregate aggregate, Request command, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.Api;
 using Domain.Foundation.CQRS;
 using Domain.Foundation.DependencyInjection;
@@ -112,7 +113,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : ITestHandler
             {
-                public Task<Response> Handle(Request request)
+                public Task<Response> Handle(Request request, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }
@@ -135,7 +136,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : ITestHandler, IQueryHandler<Request, Response>
             {
-                public Task<Response> Handle(Request request)
+                public Task<Response> Handle(Request request, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }
@@ -153,7 +154,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : IQueryHandler<Request, Response>
             {
-                public Task<Response> Handle(Request request)
+                public Task<Response> Handle(Request request, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }

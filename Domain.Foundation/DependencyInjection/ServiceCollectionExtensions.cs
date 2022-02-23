@@ -5,6 +5,7 @@ using System.Reflection;
 using Domain.Foundation.Api;
 using Domain.Foundation.Core;
 using Domain.Foundation.CQRS;
+using Domain.Foundation.Storage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Domain.Foundation.DependencyInjection
@@ -27,7 +28,7 @@ namespace Domain.Foundation.DependencyInjection
             configurationAction?.Invoke(options);
 
             serviceCollection
-                .AddAggregateFactory()
+                .AddAggregateConstructor()
                 .AddQueryHandlers(options)
                 .AddCommandHandlers(options)
                 .AddAggregateCommandHandlers(options);
@@ -35,9 +36,10 @@ namespace Domain.Foundation.DependencyInjection
             return serviceCollection;
         }
 
-        private static IServiceCollection AddAggregateFactory(this IServiceCollection serviceCollection)
+        private static IServiceCollection AddAggregateConstructor(this IServiceCollection serviceCollection)
         {
-            serviceCollection.AddScoped<IAggregateFactory, AggregateFactory>();
+            serviceCollection.AddScoped<IAggregateConstructor, AggregateConstructor>();
+            serviceCollection.AddScoped(typeof(IAggregateStore<,>), typeof(DefaultAggregateStore<,>));
             return serviceCollection;
         }
 

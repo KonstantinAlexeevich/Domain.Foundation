@@ -1,6 +1,7 @@
-﻿using System.Threading.Tasks;
-using Domain.Foundation.Core;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.CQRS;
+using Domain.Foundation.Storage;
 using Domain.Foundation.Tactical;
 
 namespace Domain.Foundation.Api
@@ -11,24 +12,30 @@ namespace Domain.Foundation.Api
         where TAggregate : IAggregate<TIdentity>
         where TCommand : ICommand<TIdentity>
     {
-        private readonly IAggregateFactory _aggregateFactory;
         private readonly THandler _handler;
+        private readonly IAggregateStore<TAggregate, TIdentity> _aggregateStore;
 
-        public ApiAggregateCommandHandler(THandler handler, IAggregateFactory aggregateFactory)
+        public ApiAggregateCommandHandler(THandler handler, IAggregateStore<TAggregate, TIdentity> aggregateStore)
         {
             _handler = handler;
-            _aggregateFactory = aggregateFactory;
+            _aggregateStore = aggregateStore;
         }
 
-        public async Task<TResult> Handle(TCommand request)
+        public async Task<ApiResult<TCommand, TResult>> Handle(TCommand request, CancellationToken cancellationToken)
         {
-            var aggregate = await _aggregateFactory
-                .CreateAggregateInstanceAsync<TAggregate, TIdentity>(request.AggregateId)
+            var aggregate = await _aggregateStore
+                .Create(request.AggregateId)
                 .ConfigureAwait(false);
 
-            await aggregate.LoadAsync().ConfigureAwait(false);
+            var result = await _handler.ExecuteAsync(aggregate, request, cancellationToken)
+                .ConfigureAwait(false);
 
-            return await _handler.ExecuteAsync(aggregate, request).ConfigureAwait(false);
+            await _aggregateStore.Store(aggregate).ConfigureAwait(false);
+            
+            return new ApiResult<TCommand, TResult>()
+            {
+                Body = result
+            };
         }
     }
 }

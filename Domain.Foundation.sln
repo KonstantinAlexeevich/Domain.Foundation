@@ -4,6 +4,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Foundation", "Domain
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Foundation.Tests", "Domain.Foundation.Tests\Domain.Foundation.Tests.csproj", "{EC772DB1-270B-431C-B91F-FB28B2EDC700}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Foundation.SourceGenerator", "Domain.Foundation.SourceGenerator\Domain.Foundation.SourceGenerator.csproj", "{0F2422C9-0B6D-4050-AF68-9F1D8FC95245}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain.Foundation.SourceGenerator.Tests", "Domain.Foundation.SourceGenerator.Tests\Domain.Foundation.SourceGenerator.Tests.csproj", "{35155AB7-1E67-49EE-ABF2-E4F45CBBEADB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +22,13 @@ Global
 		{EC772DB1-270B-431C-B91F-FB28B2EDC700}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EC772DB1-270B-431C-B91F-FB28B2EDC700}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EC772DB1-270B-431C-B91F-FB28B2EDC700}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0F2422C9-0B6D-4050-AF68-9F1D8FC95245}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0F2422C9-0B6D-4050-AF68-9F1D8FC95245}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0F2422C9-0B6D-4050-AF68-9F1D8FC95245}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0F2422C9-0B6D-4050-AF68-9F1D8FC95245}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35155AB7-1E67-49EE-ABF2-E4F45CBBEADB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35155AB7-1E67-49EE-ABF2-E4F45CBBEADB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35155AB7-1E67-49EE-ABF2-E4F45CBBEADB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35155AB7-1E67-49EE-ABF2-E4F45CBBEADB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

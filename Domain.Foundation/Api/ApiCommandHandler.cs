@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.CQRS;
 
 namespace Domain.Foundation.Api
@@ -14,9 +15,14 @@ namespace Domain.Foundation.Api
             _handler = handler;
         }
 
-        public Task<TResponse> Handle(TRequest request)
+        public async Task<ApiResult<TRequest, TResponse>> Handle(TRequest request, CancellationToken cancellationToken)
         {
-            return _handler.ExecuteAsync(request);
+            var result = await _handler.ExecuteAsync(request, cancellationToken);
+            
+            return new ApiResult<TRequest, TResponse>()
+            {
+                Body = result
+            };
         }
     }
 }

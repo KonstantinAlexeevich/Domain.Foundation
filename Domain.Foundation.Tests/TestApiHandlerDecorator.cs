@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.Api;
 using Domain.Foundation.CQRS;
 
@@ -16,9 +17,9 @@ namespace Domain.Foundation.Tests
             _handler = handler;
         }
         
-        public Task<TResponse> Handle(TRequest request)
-        {
-            return _decorated.Handle(request);
+        public Task<ApiResult<TRequest, TResponse>> Handle(TRequest request, CancellationToken cancellationToken)
+        { 
+            return _decorated.Handle(request, cancellationToken);
         }
     }
 }

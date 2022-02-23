@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.CQRS;
 using Domain.Foundation.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection;
@@ -111,7 +112,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : ITestHandler
             {
-                public Task<Response> ExecuteAsync(Request command)
+                public Task<Response> ExecuteAsync(Request command, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }
@@ -134,7 +135,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : ITestHandler, ICommandHandler<Request, Response>
             {
-                public Task<Response> ExecuteAsync(Request command)
+                public Task<Response> ExecuteAsync(Request command, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }
@@ -152,7 +153,7 @@ namespace Domain.Foundation.Tests
         
             public class TestHandler : ICommandHandler<Request, Response>
             {
-                public Task<Response> ExecuteAsync(Request command)
+                public Task<Response> ExecuteAsync(Request command, CancellationToken cancellationToken)
                 {
                     return Task.FromResult(new Response());
                 }

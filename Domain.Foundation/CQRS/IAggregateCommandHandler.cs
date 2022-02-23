@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Threading;
+using System.Threading.Tasks;
 using Domain.Foundation.Tactical;
 
 namespace Domain.Foundation.CQRS
@@ -8,11 +9,11 @@ namespace Domain.Foundation.CQRS
         where TAggregate : IAggregate<TIdentity>
         where TCommand : ICommand<TIdentity>
     {
-        new Task ExecuteAsync(TAggregate aggregate, TCommand command);
+        new Task ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
 
-        async Task<Unit> IAggregateCommandHandler<TAggregate, TIdentity, TCommand, Unit>.ExecuteAsync(TAggregate aggregate, TCommand command)
+        async Task<Unit> IAggregateCommandHandler<TAggregate, TIdentity, TCommand, Unit>.ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken)
         {
-            await ExecuteAsync(aggregate, command).ConfigureAwait(false);
+            await ExecuteAsync(aggregate, command, cancellationToken).ConfigureAwait(false);
             return Unit.Value;
         }
     }
@@ -21,6 +22,6 @@ namespace Domain.Foundation.CQRS
         where TAggregate : IAggregate<TIdentity>
         where TCommand : ICommand<TIdentity>
     {
-        Task<TResult> ExecuteAsync(TAggregate aggregate, TCommand command);
+        Task<TResult> ExecuteAsync(TAggregate aggregate, TCommand command, CancellationToken cancellationToken);
     }
 }

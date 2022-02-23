@@ -2,7 +2,7 @@
 {
     public interface ICommand<TIdentity> : ICommand
     {
-        public TIdentity AggregateId { get; set; }
+        public TIdentity AggregateId { get; init; }
     }
 
     public interface ICommand
